@@ -1,0 +1,1 @@
+export { EmptyArticles } from './EmptyArticles';

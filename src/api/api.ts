@@ -22,6 +22,12 @@ export const getArticles = async () => {
   return articles;
 };
 
+export const getArticle = async (slug: string) => {
+  const article = await request(`articles/${slug}`, "GET");
+
+  return article;
+};
+
 export const getTags = async () => {
   const tags = await request("tags", "GET");
 

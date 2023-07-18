@@ -1,0 +1,1 @@
+export { SkeletonArticle } from './SkeletonArticle';
