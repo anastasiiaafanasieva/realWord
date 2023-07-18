@@ -11,10 +11,8 @@ type ArticleItemProps = {
 export const ArticleItem = ({ article }: ArticleItemProps) => {
   const navigation = useNavigation();
   const { author, createdAt, title, description, tagList, slug } = article;
-  const date = new Date(createdAt);
 
   const onArticleClick = (selectedSlug: string) => {
-    console.log(selectedSlug, "selectedSlug");
     navigation.navigate("Article", { articleSlug: selectedSlug });
   };
 
