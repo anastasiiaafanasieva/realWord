@@ -8,25 +8,27 @@ import { TagList } from "../components/TagList";
 import { ScrollView } from "native-base";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { SkeletonArticle } from "../components/SkeletonArticle/";
+import { useConnect } from "remx";
+import { articlesStore, tagsStore } from "../store";
 
 export const ArticleScreen = ({
   route,
 }: {
   route: RouteProp<{ params: { articleSlug: string } }, "params">;
 }) => {
-  const [currentArticle, setCurrentArticle] = useState<Article>();
+  const { article } = useConnect(articlesStore.getOpenedArticle);
 
   useEffect(() => {
     const fetchArticle = async () => {
       const articleSlug = route.params.articleSlug;
       const fetchedArticle = await getArticle(articleSlug);
-      setCurrentArticle(fetchedArticle.article);
+      articlesStore.setOpenedArticle(fetchedArticle.article);
     };
 
     fetchArticle();
   }, []);
 
-  if (!currentArticle) {
+  if (!article) {
     return <SkeletonArticle />;
   }
 
@@ -35,15 +37,15 @@ export const ArticleScreen = ({
       <ScrollView>
         <View style={styles.headerContainer}>
           <View>
-            <Text style={styles.title}>{currentArticle.title}</Text>
+            <Text style={styles.title}>{article.title}</Text>
           </View>
           <View style={styles.authorData}>
             <AuthorInfo
-              author={currentArticle.author}
-              createdAt={currentArticle.createdAt}
+              author={article.author}
+              createdAt={article.createdAt}
             />
             <View style={styles.favorites}>
-              <Text>{currentArticle.favoritesCount}</Text>
+              <Text>{article.favoritesCount}</Text>
               <Ionicons name='ios-heart-outline' size={24} color='black' />
             </View>
           </View>
@@ -51,10 +53,10 @@ export const ArticleScreen = ({
         <View style={styles.body}>
           <View>
             <Text style={styles.text}>
-              {currentArticle.body.replace(/\\n/g, " ")}
+              {article.body.replace(/\\n/g, " ")}
             </Text>
           </View>
-          <TagList tags={currentArticle.tagList} />
+          <TagList tags={article.tagList} />
         </View>
       </ScrollView>
     </>

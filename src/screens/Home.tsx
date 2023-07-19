@@ -9,18 +9,18 @@ import { ArticleList } from "../components/ArticleList";
 import { EmptyArticles } from "../components/EmptyArticles";
 import { TagList } from "../components/TagList";
 import { useConnect } from "remx";
-import { articlesStore } from "../store";
+import { articlesStore, tagsStore } from "../store";
 
 export const Home = () => {
   const articles = useConnect(articlesStore.getArticles);
+  const tags = useConnect(tagsStore.getTags);
+  const selectedTag = useConnect(tagsStore.getSelectedTag);
   const [isLoading, setIsLoading] = useState<Boolean>(true);
-  const [tags, setTags] = useState<string[]>([]);
-  const [selectedTag, setSelectedTag] = useState<string>("");
 
   useEffect(() => {
     const fetchTags = async () => {
       const fetchedTags = await getTags();
-      setTags(fetchedTags.tags);
+      tagsStore.setTags(fetchedTags.tags);
     };
 
     fetchTags();
@@ -48,9 +48,9 @@ export const Home = () => {
 
   const selectTag = (currentTag: string) => {
     if (currentTag !== selectedTag) {
-      setSelectedTag(currentTag);
+      tagsStore.setSelectedTag(currentTag);
     } else {
-      setSelectedTag("");
+      tagsStore.setSelectedTag("");
     }
   };
 
@@ -59,7 +59,11 @@ export const Home = () => {
       <TagList tags={tags} selectedTag={selectedTag} selectTag={selectTag} />
       {!isLoading ? (
         <>
-          {articles.length === 0 ? <EmptyArticles /> : <ArticleList articles={articles} />}
+          {articles.length === 0 ? (
+            <EmptyArticles />
+          ) : (
+            <ArticleList articles={articles} />
+          )}
         </>
       ) : (
         <>
