@@ -3,6 +3,7 @@ import { Divider } from "native-base";
 import type { Article } from "../../types/article";
 import { useNavigation } from "@react-navigation/native";
 import { AuthorInfo } from "../AuthorInfo";
+import Ionicons from "@expo/vector-icons/Ionicons";
 
 type ArticleItemProps = {
   article: Article;
@@ -19,8 +20,21 @@ export const ArticleItem = ({ article }: ArticleItemProps) => {
   return (
     <>
       <Divider />
-      <TouchableOpacity style={styles.container} onPress={() => onArticleClick(slug)}>
-        <AuthorInfo author={author} createdAt={createdAt} />
+      <TouchableOpacity
+        style={styles.container}
+        onPress={() => onArticleClick(slug)}
+      >
+        <View style={styles.authorData}>
+          <AuthorInfo author={author} createdAt={createdAt} />
+          <View style={styles.favorites}>
+            <Text style={{ color: "#bbb" }}>{article.favoritesCount}</Text>
+            <Ionicons
+              name={article.favorited ? "ios-heart" : "ios-heart-outline"}
+              size={24}
+              color='#5CB85C'
+            />
+          </View>
+        </View>
         <View>
           <Text style={styles.title}>{title}</Text>
         </View>
@@ -28,11 +42,6 @@ export const ArticleItem = ({ article }: ArticleItemProps) => {
           <Text style={styles.description}>{description}</Text>
         </View>
         <View style={styles.footerContainer}>
-          <TouchableOpacity onPress={() => onArticleClick(slug)}>
-            <Text style={styles.readMore}>
-              Read more...
-            </Text>
-          </TouchableOpacity>
           <View style={styles.tagList}>
             {tagList.map((tag, index) => (
               <Text key={index} style={styles.tagListItem}>
@@ -50,6 +59,17 @@ const styles = StyleSheet.create({
   container: {
     marginVertical: 24,
   },
+  authorData: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  favorites: {
+    display: "flex",
+    flexDirection: "row",
+    gap: 2,
+    alignItems: "center",
+  },
   title: {
     fontWeight: "800",
     marginTop: 20,
@@ -65,11 +85,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-end",
-  },
-  readMore: {
-    color: "#bbb",
-    fontWeight: "300",
-    fontSize: 14,
   },
   tagList: {
     display: "flex",

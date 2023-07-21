@@ -1,34 +1,53 @@
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { AuthorInfo } from "../components/AuthorInfo";
-import { getArticle } from "../api/api";
+import { addFavorites, deleteFavorites, getArticle } from "../api/api";
 import { useEffect, useState } from "react";
-import { Article } from "../types/article";
 import { RouteProp } from "@react-navigation/native";
 import { TagList } from "../components/TagList";
 import { ScrollView } from "native-base";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { SkeletonArticle } from "../components/SkeletonArticle/";
 import { useConnect } from "remx";
-import { articlesStore, tagsStore } from "../store";
+import { articlesStore, userStore } from "../store";
+import { useNavigation } from "@react-navigation/native";
 
 export const ArticleScreen = ({
   route,
 }: {
   route: RouteProp<{ params: { articleSlug: string } }, "params">;
 }) => {
+  const navigation = useNavigation();
+  const { user } = useConnect(userStore.getUser);
   const { article } = useConnect(articlesStore.getOpenedArticle);
+  const { articleSlug } = route.params;
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchArticle = async () => {
-      const articleSlug = route.params.articleSlug;
+      setIsLoading(true);
       const fetchedArticle = await getArticle(articleSlug);
       articlesStore.setOpenedArticle(fetchedArticle.article);
+      setIsLoading(false);
     };
 
     fetchArticle();
-  }, []);
+  }, [articleSlug]);
 
-  if (!article) {
+  const onFavoriteClick = async () => {
+    if (!user) {
+      return navigation.navigate("Login");
+    }
+
+    const updatedArticle = article?.favorited
+      ? await deleteFavorites(articleSlug)
+      : await addFavorites(articleSlug);
+
+    if (updatedArticle) {
+      articlesStore.setOpenedArticle(updatedArticle);
+    }
+  };
+
+  if (isLoading || !article) {
     return <SkeletonArticle />;
   }
 
@@ -40,21 +59,23 @@ export const ArticleScreen = ({
             <Text style={styles.title}>{article.title}</Text>
           </View>
           <View style={styles.authorData}>
-            <AuthorInfo
-              author={article.author}
-              createdAt={article.createdAt}
-            />
-            <View style={styles.favorites}>
-              <Text>{article.favoritesCount}</Text>
-              <Ionicons name='ios-heart-outline' size={24} color='black' />
-            </View>
+            <AuthorInfo author={article.author} createdAt={article.createdAt} />
+            <TouchableOpacity
+              style={styles.favorites}
+              onPress={onFavoriteClick}
+            >
+              <Text style={{ color: "#5CB85C" }}>{article.favoritesCount}</Text>
+              <Ionicons
+                name={article.favorited ? "ios-heart" : "ios-heart-outline"}
+                size={24}
+                color='#5CB85C'
+              />
+            </TouchableOpacity>
           </View>
         </View>
         <View style={styles.body}>
           <View>
-            <Text style={styles.text}>
-              {article.body.replace(/\\n/g, " ")}
-            </Text>
+            <Text style={styles.text}>{article.body.replace(/\\n/g, " ")}</Text>
           </View>
           <TagList tags={article.tagList} />
         </View>

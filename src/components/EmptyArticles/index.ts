@@ -1,1 +1,1 @@
-export { EmptyArticles } from './EmptyArticles';
+export { EmptyArticles } from "./EmptyArticles";

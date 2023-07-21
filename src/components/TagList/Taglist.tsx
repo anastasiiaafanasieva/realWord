@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View, ScrollView } from "react-native";
 
 export const TagList = ({
   tags,
@@ -11,7 +11,7 @@ export const TagList = ({
 }) => {
   return (
     <View style={styles.tagListContainer}>
-      <View style={styles.tagList}>
+      <ScrollView horizontal={true}>
         {tags.map((tag, index) => (
           <Text
             key={index}
@@ -21,34 +21,27 @@ export const TagList = ({
             {tag}
           </Text>
         ))}
-      </View>
+      </ScrollView>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   tagListContainer: {
-    display: "flex",
-    flexDirection: "row",
     marginBottom: 20,
-  },
-  tagList: {
-    display: "flex",
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 8,
   },
   tag: {
     color: "#aaa",
     borderColor: "#ddd",
     borderWidth: 1,
     borderRadius: 10,
+    marginHorizontal: 3,
     paddingHorizontal: 10,
     paddingVertical: 5,
   },
   selectedTag: {
     backgroundColor: "#5CB85C",
-    color: "#ddd",
+    color: "white",
     overflow: "hidden",
   },
 });

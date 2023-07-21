@@ -4,11 +4,13 @@ import { Article } from "../types/article";
 type ArticlesState = {
   articles: Article[];
   openedArticle: Article | undefined;
+  favorites: Article[] | undefined;
 };
 
 const initialArticlesState: ArticlesState = {
   articles: [],
   openedArticle: undefined,
+  favorites: [],
 };
 
 const articlesState = remx.state(initialArticlesState);

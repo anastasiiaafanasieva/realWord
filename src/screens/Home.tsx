@@ -4,23 +4,28 @@ import LoaderScreen from "react-native-ui-lib/loaderScreen";
 import { getArticles, getTags } from "../api/api";
 import { useEffect, useState } from "react";
 import { Article } from "../types/article";
-
 import { ArticleList } from "../components/ArticleList";
 import { EmptyArticles } from "../components/EmptyArticles";
 import { TagList } from "../components/TagList";
 import { useConnect } from "remx";
-import { articlesStore, tagsStore } from "../store";
+import { articlesStore, tagsStore, userStore } from "../store";
+import { SkeletonTags } from "../components/SkeletonTags";
 
 export const Home = () => {
   const articles = useConnect(articlesStore.getArticles);
+  const openedArticle = useConnect(articlesStore.getOpenedArticle);
   const tags = useConnect(tagsStore.getTags);
   const selectedTag = useConnect(tagsStore.getSelectedTag);
-  const [isLoading, setIsLoading] = useState<Boolean>(true);
+  const user = useConnect(userStore.getUser);
+  const [isArticlesLoading, setIsArticlesLoading] = useState(true);
+  const [isTagsLoading, setIsTagsLoading] = useState(true);
 
   useEffect(() => {
     const fetchTags = async () => {
+      setIsTagsLoading(true);
       const fetchedTags = await getTags();
       tagsStore.setTags(fetchedTags.tags);
+      setIsTagsLoading(false);
     };
 
     fetchTags();
@@ -28,7 +33,7 @@ export const Home = () => {
 
   useEffect(() => {
     const fetchArticles = async () => {
-      setIsLoading(true);
+      setIsArticlesLoading(true);
       const fetchedArticles = await getArticles();
       if (selectedTag) {
         articlesStore.setArticles(
@@ -40,11 +45,11 @@ export const Home = () => {
         articlesStore.setArticles(fetchedArticles.articles);
       }
 
-      setIsLoading(false);
+      setIsArticlesLoading(false);
     };
 
     fetchArticles();
-  }, [selectedTag]);
+  }, [selectedTag, user, openedArticle]);
 
   const selectTag = (currentTag: string) => {
     if (currentTag !== selectedTag) {
@@ -56,19 +61,25 @@ export const Home = () => {
 
   return (
     <View style={styles.tags}>
-      <TagList tags={tags} selectedTag={selectedTag} selectTag={selectTag} />
-      {!isLoading ? (
+      {isTagsLoading ? (
+        <View style={styles.skeletonTags}>
+          <SkeletonTags />
+        </View>
+      ) : (
+        <TagList tags={tags} selectedTag={selectedTag} selectTag={selectTag} />
+      )}
+      {isArticlesLoading ? (
+        <>
+          <Divider />
+          <LoaderScreen containerStyle={styles.loader} color={"#ddd"} />
+        </>
+      ) : (
         <>
           {articles.length === 0 ? (
             <EmptyArticles />
           ) : (
             <ArticleList articles={articles} />
           )}
-        </>
-      ) : (
-        <>
-          <Divider />
-          <LoaderScreen containerStyle={styles.loader} color={"#ddd"} />
         </>
       )}
     </View>
@@ -78,6 +89,11 @@ export const Home = () => {
 const styles = StyleSheet.create({
   tags: {
     margin: 20,
+  },
+  skeletonTags: {
+    display: "flex",
+    alignItems: "center",
+    flexDirection: "row",
   },
   loader: {
     marginVertical: 100,

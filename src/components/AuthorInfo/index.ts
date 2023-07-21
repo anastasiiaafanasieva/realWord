@@ -1,1 +1,1 @@
-export { AuthorInfo } from './AuthorInfo';
+export { AuthorInfo } from "./AuthorInfo";
